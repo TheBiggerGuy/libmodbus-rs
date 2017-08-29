@@ -25,9 +25,8 @@ fn main() {
     let target = env::var("TARGET").unwrap();
     let host = env::var("HOST").unwrap();
 
-    let build_dir = Path::new(LIBMODBUS_DIR);
-    let prefix    = Path::new(&dst).join("libmodbus-root");
-    let include   = Path::new(&prefix).join("include")
+    let build_dir = Path::new(&dst).join(LIBMODBUS_DIR);
+    let include   = Path::new(&build_dir).join("include")
                                       .join("modbus");
 
     // if `pkg-config` is present and the libmodbus headers are found
@@ -77,7 +76,7 @@ fn main() {
     run_command("Configuring libmodbus",
         Command::new("./configure")
             .arg("--prefix")
-            .arg(&prefix)
+            .arg(&build_dir)
             .env("CC", compiler.path())
             .env("CFLAGS", flags)
             .arg("--with-pic")
