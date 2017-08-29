@@ -47,7 +47,10 @@ fn main() {
 
     // If autogen.sh is not present, initalize git submodules
     if !Path::new("libmodbus/autogen.sh").exists() {
-        run_command("", Command::new("git").args(&["submodule", "update", "--init"]));
+        run_command("Initialize git submodule",
+            Command::new("git")
+                .args(&["submodule", "update", "--init"])
+                .current_dir(&build_dir));
     }
 
     let _ = fs::remove_dir_all(env::var("OUT_DIR").unwrap());
