@@ -53,7 +53,7 @@ The libmobus ffi bindings (libmodbus-sys) are build using [bindgen][bindgen]. [B
 ### Debian based
 
 ```sh
-# apt-get install llvm-3.9-dev libclang-3.9-dev clang-3.9
+# apt-get install llvm-3.9-dev libclang-3.9-dev clang-3.9 libgit2 autoconf
 ```
 
 ### Arch
