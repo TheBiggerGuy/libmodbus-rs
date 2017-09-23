@@ -1,12 +1,15 @@
 extern crate bindgen;
-extern crate pkg_config;
 extern crate gcc;
+extern crate git2;
 
 use std::env;
 use std::ffi::OsString;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
+use std::option::Option;
+
+use git2::Repository;
 
 
 // stolen from: https://github.com/alexcrichton/backtrace-rs/blob/master/backtrace-sys/build.rs
@@ -30,24 +33,17 @@ fn main() {
     let include   = Path::new(&prefix).join("include")
                                       .join("modbus");
 
-    // if `pkg-config` is present and the libmodbus headers are found
-    // we use `pkg-config` to find the include_path and call bindgen with it.
-    //
-    if let Ok(library) = pkg_config::probe_library("libmodbus") {
-        if let Some(include) = library.include_paths.get(0) {
-            run_bindgen(&include);
-        }
-
-        return
-    }
-
-    // pkg-config is not found. We build libmodbus from source (source are in a git submodule)
-    // and run bindgen with that folder as include path set.
-    //
-
-    // If autogen.sh is not present, initalize git submodules
-    if !Path::new("libmodbus/autogen.sh").exists() {
-        run_command("", Command::new("git").args(&["submodule", "update", "--init"]));
+    // Initalize git submodules
+    let repo = match Repository::open("../") {
+        Ok(repo) => repo,
+        Err(e) => panic!("failed to open git repo: {}", e),
+    };
+    let submodules = match repo.submodules() {
+        Ok(submodules) => submodules,
+        Err(e) => panic!("failed to get submodules: {}", e),
+    };
+    for mut module in submodules {
+        module.update(true, Option::None).expect("Failed to update submodule");
     }
 
     let _ = fs::remove_dir_all(env::var("OUT_DIR").unwrap());
